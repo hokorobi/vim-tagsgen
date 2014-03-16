@@ -1,4 +1,4 @@
-let g:tagsgen_config = {
+let g:tagsgen_option = {
       \ '_' : '-R',
       \ 'vim': '-R --languages=Vim',
       \ 'python': '-R --languages=Python',
@@ -37,7 +37,7 @@ function! s:tagsgen(bang)
     echom "not available " . tags_command
     return
   endif
-  let tags_config = s:get_value(g:tagsgen_config, &filetype)
+  let tags_option = s:get_value(g:tagsgen_option, &filetype)
   let tags_dir = s:tagsgen_setdir(a:bang)
   if !isdirectory(tags_dir)
     echom 'Not exists directory: ' . tags_dir
@@ -46,13 +46,13 @@ function! s:tagsgen(bang)
 
   cd `=tags_dir`
 
-  let tags_config = substitute(tags_config, '{CURFILE}', expand('%:t'), '')
-  if match(tags_config, '{CURFILES}') != -1
+  let tags_option = substitute(tags_option, '{CURFILE}', expand('%:t'), '')
+  if match(tags_option, '{CURFILES}') != -1
     let curfiles = glob('*.' . expand('%:e'))
     let files = substitute(curfiles, '\n', ' ', 'g')
-    let tags_config = substitute(tags_config, '{CURFILES}',files , '')
+    let tags_option = substitute(tags_option, '{CURFILES}',files , '')
   endif
-  let cmd = tags_command . ' ' . tags_config
+  let cmd = tags_command . ' ' . tags_option
   " tags ファイル生成コマンドが標準出力へ出力される場合は > でファイルへ書き出
   " す。> を使う場合は :! でコマンドを実行する。
   let vimcmd = match(cmd, ">") == -1 ? 'VimProcBang' : ':!'

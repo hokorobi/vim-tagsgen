@@ -1,3 +1,5 @@
+scriptencoding utf-8
+
 let g:tagsgen_option = {
       \ '_' : '-R',
       \ 'vim': '-R --languages=Vim',

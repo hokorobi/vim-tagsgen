@@ -18,11 +18,9 @@ endif
 
 " ファイルごとの tag_sdir をキャッシュ
 " TODO ファイルへの書き出し、読み込み
-if !exists('g:tagsgen_tags_dir')
-  let g:tagsgen_tags_dir = {
-        \ '_': ''
-        \ }
-endif
+let s:tagsgen_tags_dir = {
+      \ '_': ''
+      \ }
 
 let s:save_cpo = &cpo
 set cpo&vim

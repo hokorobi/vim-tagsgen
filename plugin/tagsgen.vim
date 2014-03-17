@@ -69,7 +69,7 @@ function! s:tagsgen(bang)
   let cmd = tags_command . ' ' . tags_option
   " tags ファイル生成コマンドが標準出力へ出力される場合は > でファイルへ書き出
   " す。> を使う場合は :! でコマンドを実行する。
-  let vimcmd = match(cmd, ">") == -1 ? 'VimProcBang' : ':!'
+  let vimcmd = match(cmd, ">") == -1 && exists(':VimProcBang') == 2 ? 'VimProcBang' : ':!'
   silent! exe vimcmd cmd
 
   let g:tagsgen_tags_dir[expand('%')] = tags_dir

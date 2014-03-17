@@ -34,8 +34,8 @@ function! s:tagsgen_setdir(bang)
   let tags_dir = a:bang ? '' : s:get_value(g:tagsgen_tags_dir, expand('%'))
   if tags_dir == ''
     let tags_dir = input('tags dir?: ', fnamemodify(expand('%'), ':p:h'))
+    redraw
     if !isdirectory(tags_dir)
-      redraw
       echom 'tagsgen: Not exists directory: ' . tags_dir
       return ''
     endif
@@ -49,8 +49,7 @@ endfunction
 function! s:tagsgen(bang)
   let tags_command = s:get_value(g:tagsgen_tags_command, &filetype)
   if !executable(tags_command)
-    redraw
-    echom "tagsgen: not available " . tags_command
+    echom "tagsgen: Not available " . tags_command
     return
   endif
   let tags_option = s:get_value(g:tagsgen_option, &filetype)

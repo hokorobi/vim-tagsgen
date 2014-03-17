@@ -44,6 +44,7 @@ function! s:tagsgen_setdir(bang)
   endif
 
   cd `=tags_dir`
+  let g:tagsgen_tags_dir[expand('%')] = tags_dir
   return tags_dir
 endfunction
 
@@ -71,8 +72,6 @@ function! s:tagsgen(bang)
   " す。> を使う場合は :! でコマンドを実行する。
   let vimcmd = match(cmd, ">") == -1 && exists(':VimProcBang') == 2 ? 'VimProcBang' : ':!'
   silent! exe vimcmd cmd
-
-  let g:tagsgen_tags_dir[expand('%')] = tags_dir
 endfunction
 
 command! -bang -nargs=0 Tagsgen :call s:tagsgen(<bang>0)

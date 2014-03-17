@@ -1,22 +1,28 @@
 scriptencoding utf-8
 
-let g:tagsgen_option = {
-      \ '_' : '-R',
-      \ 'vim': '-R --languages=Vim',
-      \ 'python': '-R --languages=Python',
-      \ 'go': '{CURFILES} > tags'
-      \ }
+if !exists('g:tagsgen_option')
+  let g:tagsgen_option = {
+        \ '_' : '-R',
+        \ 'vim': '-R --languages=Vim',
+        \ 'python': '-R --languages=Python',
+        \ 'go': '{CURFILES} > tags'
+        \ }
+endif
 
-let g:tagsgen_tags_command = {
-      \ '_': 'ctags',
-      \ 'go': 'gotags'
-      \ }
+if !exists('g:tagsgen_tags_command')
+  let g:tagsgen_tags_command = {
+        \ '_': 'ctags',
+        \ 'go': 'gotags'
+        \ }
+endif
 
 " ファイルごとの tag_sdir をキャッシュ
 " TODO ファイルへの書き出し、読み込み
-let g:tagsgen_tags_dir = {
-      \ '_': ''
-      \ }
+if !exists('g:tagsgen_tags_dir')
+  let g:tagsgen_tags_dir = {
+        \ '_': ''
+        \ }
+endif
 
 function! s:get_value(dic, key)
   return has_key(a:dic, a:key) ? a:dic[a:key] : a:dic['_']

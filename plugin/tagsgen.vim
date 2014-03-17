@@ -25,14 +25,13 @@ endfunction
 function! s:tagsgen_setdir(bang)
   " bang でキャッシュした tags_dir を再指定
   let tags_dir = a:bang ? '' : s:get_value(g:tagsgen_tags_dir, expand('%'))
-  if tags_dir != ''
-    return tags_dir
-  endif
-  " TODO input() で残ったままになるコマンドウィンドウ（？）の表示を消す
-  let tags_dir = input('tags dir?: ', fnamemodify(expand('%'), ':p:h'))
-  if !isdirectory(tags_dir)
-    echom 'Not exists directory: ' . tags_dir
-    return ''
+  if tags_dir == ''
+    " TODO input() で残ったままになるコマンドウィンドウ（？）の表示を消す
+    let tags_dir = input('tags dir?: ', fnamemodify(expand('%'), ':p:h'))
+    if !isdirectory(tags_dir)
+      echom 'Not exists directory: ' . tags_dir
+      return ''
+    endif
   endif
 
   cd `=tags_dir`

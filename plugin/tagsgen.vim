@@ -35,10 +35,10 @@ function! s:tagsgen_setdir(bang)
   " bang でキャッシュした tags_dir を再指定
   let tags_dir = a:bang ? '' : s:get_value(g:tagsgen_tags_dir, expand('%'))
   if tags_dir == ''
-    " TODO input() で残ったままになるコマンドウィンドウ（？）の表示を消す
     let tags_dir = input('tags dir?: ', fnamemodify(expand('%'), ':p:h'))
     if !isdirectory(tags_dir)
-      echom 'Not exists directory: ' . tags_dir
+      redraw
+      echom 'tagsgen: Not exists directory: ' . tags_dir
       return ''
     endif
   endif
@@ -50,7 +50,8 @@ endfunction
 function! s:tagsgen(bang)
   let tags_command = s:get_value(g:tagsgen_tags_command, &filetype)
   if !executable(tags_command)
-    echom "not available " . tags_command
+    redraw
+    echom "tagsgen: not available " . tags_command
     return
   endif
   let tags_option = s:get_value(g:tagsgen_option, &filetype)

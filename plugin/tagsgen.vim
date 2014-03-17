@@ -30,6 +30,12 @@ function! s:tagsgen_setdir(bang)
   endif
   " TODO input() で残ったままになるコマンドウィンドウ（？）の表示を消す
   let tags_dir = input('tags dir?: ', fnamemodify(expand('%'), ':p:h'))
+  if !isdirectory(tags_dir)
+    echom 'Not exists directory: ' . tags_dir
+    return ''
+  endif
+
+  cd `=tags_dir`
   return tags_dir
 endfunction
 
@@ -41,12 +47,9 @@ function! s:tagsgen(bang)
   endif
   let tags_option = s:get_value(g:tagsgen_option, &filetype)
   let tags_dir = s:tagsgen_setdir(a:bang)
-  if !isdirectory(tags_dir)
-    echom 'Not exists directory: ' . tags_dir
+  if tags_dir == ''
     return
   endif
-
-  cd `=tags_dir`
 
   let tags_option = substitute(tags_option, '{CURFILE}', expand('%:t'), '')
   if match(tags_option, '{CURFILES}') != -1

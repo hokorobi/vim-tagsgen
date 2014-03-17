@@ -24,6 +24,9 @@ if !exists('g:tagsgen_tags_dir')
         \ }
 endif
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 function! s:get_value(dic, key)
   return has_key(a:dic, a:key) ? a:dic[a:key] : a:dic['_']
 endfunction
@@ -73,3 +76,6 @@ endfunction
 
 command! -bang -nargs=0 Tagsgen :call s:tagsgen(<bang>0)
 command! -bang -nargs=0 TagsgenSetDir :call s:tagsgen_setdir(<bang>0)
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

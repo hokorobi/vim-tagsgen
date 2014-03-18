@@ -94,23 +94,25 @@ function! tagsgen#tagsgen_setdir(bang)
 endfunction
 
 function! tagsgen#tagsgen(bang)
-  let tags_command = s:get_value(g:tagsgen_tags_command, &filetype)
-  if !executable(tags_command)
-    echom "tagsgen: Not available " . tags_command
-    return
-  endif
-  let tags_option = s:get_value(g:tagsgen_option, &filetype)
   let tags_dir = tagsgen#tagsgen_setdir(a:bang)
   if tags_dir == ''
     return
   endif
 
+  let tags_command = s:get_value(g:tagsgen_tags_command, &filetype)
+  if !executable(tags_command)
+    echom "tagsgen: Not available " . tags_command
+    return
+  endif
+
+  let tags_option = s:get_value(g:tagsgen_option, &filetype)
   let tags_option = substitute(tags_option, '{CURFILE}', expand('%:t'), '')
   if match(tags_option, '{CURFILES}') != -1
     let curfiles = glob('*.' . expand('%:e'))
     let files = substitute(curfiles, '\n', ' ', 'g')
     let tags_option = substitute(tags_option, '{CURFILES}',files , '')
   endif
+
   let cmd = tags_command . ' ' . tags_option
   " tags ファイル生成コマンドが標準出力へ出力される場合は > でファイルへ書き出
   " す。> を使う場合は :! でコマンドを実行する。

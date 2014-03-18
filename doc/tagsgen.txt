@@ -1,0 +1,118 @@
+*tagsgen.txt*	tags generate admincle
+
+Author : hokorobi <hokorobi.hokorobi at gmail.com>
+
+License: MIT license  {{{
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+}}}
+
+CONTENTS					*tagsgen-contents*
+
+Introduction		|tagsgen-introduction|
+Usage			|tagsgen-usage|
+Install			|tagsgen-install|
+Interface		|tagsgen-interface|
+  Commands		  |tagsgen-commands|
+  Variables		  |tagsgen-variables|
+
+==============================================================================
+INTRODUCTION					*tagsgen-introduction*
+
+tagsgen は tags ファイルの生成と、tags ファイルを使うためのディレクトリ移動を
+補助します。
+ファイル単位に tags ファイルディレクトリのパスをキャッシュします。
+
+==============================================================================
+USAGE						*tagsgen-usage*
+
+tags ファイルの生成:
+>
+	:Tagsgen
+<
+
+使用したい tags ファイルのディレクトリへ移動:
+>
+	:TagsgenSetDir
+<
+==============================================================================
+INSTALL						*tagsgen-install*
+
+vimrc へ
+>
+	NeoBundle 'hokorobi/vim-tagsgen'
+<
+と書いて :NeoBundleInstall を実行。
+
+==============================================================================
+INTERFACE					*tagsgen-interface*
+
+------------------------------------------------------------------------------
+COMMANDS 					*tagsgen-commands*
+
+						*:Tagsgen*
+:Tagsgen[!]
+		tags ファイル生成。
+		以前、作成先のディレクトリを指定しなければ指定するように求めら
+		れる。
+		! を付けると常に指定するように求められる。
+
+:TagsgenSetDir[!]				*:TagsgenSetDir*
+		tags ファイルのあるディレクトリをカレントディレクトリとする。
+		以前、ディレクトリを指定していなければ、指定するように求められ
+		る。
+		! を付けると常に指定するように求められる。
+
+------------------------------------------------------------------------------
+VARIABLES 					*tagsgen-variables*
+
+g:tagsgen_tags_command				*g:tagsgen_tags_command*
+		ファイルタイプに対応する tags ファイル生成コマンドを指定する。
+
+		例:
+>
+		let g:tagsgen_tags_command = {
+		      \ '_': 'ctags',
+		      \ 'go': 'gotags'
+		      \ }
+<
+
+g:tagsgen_option				*g:tagsgen_option*
+		ファイルタイプに対応する tags ファイル生成コマンドのオプション
+		を指定する。
+		オプションに {CURFILES} を含めると、バッファで開いているファイ
+		ルのディレクトリから、同一拡張子のファイルを列挙します。
+
+		例:
+>
+		let g:tagsgen_option = {
+		      \ '_' : '-R',
+		      \ 'vim': '-R --languages=Vim',
+		      \ 'python': '-R --languages=Python',
+		      \ 'go': '{CURFILES} > tags'
+		      \ }
+<
+
+g:tagsgen_data_dir				*g:tagsgen_data_dir*
+		tagsgen で作成するファイルを保存するディレクトリを指定します。
+
+		デフォルト: ~/.tagsgen
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:
+

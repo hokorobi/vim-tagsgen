@@ -43,6 +43,22 @@ function! s:load_dirs()
 endfunction
 call s:load_dirs()
 
+" キャッシュファイルの重複などを削除
+" s:dirs は辞書型なので s:load_dirs() の後には、重複などがなくなるのでそれを
+" 書き込み
+function! s:save_dirs()
+  let list = items(s:dirs)
+  let vs = []
+  for v in list
+    if v[1] == ''
+      continue
+    endif
+    call add(vs, v[0] . "\t" . v[1])
+  endfor
+  call writefile(vs, s:data_file)
+endfunction
+call s:save_dirs()
+
 
 function! s:get_value(dic, key)
   return has_key(a:dic, a:key) ? a:dic[a:key] : a:dic['_']

@@ -1,5 +1,8 @@
 scriptencoding utf-8
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 if !exists('g:tagsgen_option')
   let g:tagsgen_option = {
         \ '_' : '-R',
@@ -16,22 +19,45 @@ if !exists('g:tagsgen_tags_command')
         \ }
 endif
 
-" ファイルごとの tag_sdir をキャッシュ
-" TODO ファイルへの書き出し、読み込み
-let s:tagsgen_tags_dir = {
-      \ '_': ''
-      \ }
+let g:tagsgen_data_dir = get(g:, "tagsgen_data_dir", expand('~/.tagsgen'))
+if !isdirectory(g:tagsgen_data_dir)
+  call mkdir(g:tagsgen_data_dir)
+endif
+let s:data_file = g:tagsgen_data_dir . '/tagsgen'
 
-let s:save_cpo = &cpo
-set cpo&vim
+" ファイルごとの tags ディレクトリをキャッシュ
+function! s:load_dirs()
+  let s:dirs = {'_': ''}
+  if !filereadable(s:data_file)
+    return
+  endif
+
+  for v in readfile(s:data_file)
+    " TODO 無駄な改行が入らなくなったらいらなくなるはず
+    if v == ''
+      continue
+    endif
+    let vl = split(v, "\t")
+    let s:dirs[vl[0]] = vl[1]
+  endfor
+endfunction
+call s:load_dirs()
+
 
 function! s:get_value(dic, key)
   return has_key(a:dic, a:key) ? a:dic[a:key] : a:dic['_']
 endfunction
 
+function! s:write(key, val)
+  " FIXME 最初の出力時に改行が入る
+  execute "redir >> " . s:data_file
+  silent echo a:key . "\t" . a:val
+  redir END
+endfunction
+
 function! s:tagsgen_setdir(bang)
   " bang でキャッシュした tags_dir を再指定
-  let tags_dir = a:bang ? '' : s:get_value(s:tagsgen_tags_dir, expand('%'))
+  let tags_dir = a:bang ? '' : s:get_value(s:dirs, expand('%'))
   if tags_dir == ''
     let tags_dir = input('tags dir?: ', fnamemodify(expand('%'), ':p:h'))
     redraw
@@ -42,7 +68,10 @@ function! s:tagsgen_setdir(bang)
   endif
 
   cd `=tags_dir`
-  let s:tagsgen_tags_dir[expand('%')] = tags_dir
+  let s:dirs[expand('%')] = tags_dir
+
+  call s:write(expand('%'), tags_dir)
+
   return tags_dir
 endfunction
 
@@ -76,3 +105,4 @@ command! -bang -nargs=0 TagsgenSetDir :call s:tagsgen_setdir(<bang>0)
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+

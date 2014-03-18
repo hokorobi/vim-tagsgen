@@ -77,7 +77,9 @@ function! tagsgen#tagsgen_setdir(bang)
   if tags_dir == ''
     let tags_dir = input('tags dir?: ', fnamemodify(expand('%'), ':p:h'))
     redraw
-    if !isdirectory(tags_dir)
+    if tags_dir == ''
+      return ''
+    elseif !isdirectory(tags_dir)
       echom 'tagsgen: Not exists directory: ' . tags_dir
       return ''
     endif

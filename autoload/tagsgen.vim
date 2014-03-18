@@ -93,6 +93,16 @@ function! tagsgen#tagsgen_setdir(bang)
   return tags_dir
 endfunction
 
+function! s:get_tags_option()
+  let val = substitute(s:get_value(g:tagsgen_option, &filetype), '{CURFILE}', expand('%:t'), '')
+  if match(val, '{CURFILES}') == -1
+    return val
+  endif
+  let curfiles = glob('*.' . expand('%:e'))
+  let files = substitute(curfiles, '\n', ' ', 'g')
+  return substitute(val, '{CURFILES}',files , '')
+endfunction
+
 function! tagsgen#tagsgen(bang)
   let tags_dir = tagsgen#tagsgen_setdir(a:bang)
   if tags_dir == ''
@@ -105,13 +115,7 @@ function! tagsgen#tagsgen(bang)
     return
   endif
 
-  let tags_option = s:get_value(g:tagsgen_option, &filetype)
-  let tags_option = substitute(tags_option, '{CURFILE}', expand('%:t'), '')
-  if match(tags_option, '{CURFILES}') != -1
-    let curfiles = glob('*.' . expand('%:e'))
-    let files = substitute(curfiles, '\n', ' ', 'g')
-    let tags_option = substitute(tags_option, '{CURFILES}',files , '')
-  endif
+  let tags_option = s:get_tags_option()
 
   let cmd = tags_command . ' ' . tags_option
   " tags ファイル生成コマンドが標準出力へ出力される場合は > でファイルへ書き出

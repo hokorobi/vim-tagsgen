@@ -73,9 +73,9 @@ endfunction
 
 function! tagsgen#tagsgen_setdir(bang)
   " bang でキャッシュした tags_dir を再指定
-  let tags_dir = a:bang ? '' : s:get_value(s:dirs, expand('%'))
+  let tags_dir = a:bang ? '' : s:get_value(s:dirs, expand('%:p'))
   if tags_dir == ''
-    let tags_dir = input('tags dir?: ', fnamemodify(expand('%'), ':p:h'))
+    let tags_dir = input('tags dir?: ', expand('%:p:h'))
     redraw
     if tags_dir == ''
       return ''
@@ -86,9 +86,9 @@ function! tagsgen#tagsgen_setdir(bang)
   endif
 
   cd `=tags_dir`
-  let s:dirs[expand('%')] = tags_dir
+  let s:dirs[expand('%:p')] = tags_dir
 
-  call s:write(expand('%'), tags_dir)
+  call s:write(expand('%:p'), tags_dir)
 
   return tags_dir
 endfunction

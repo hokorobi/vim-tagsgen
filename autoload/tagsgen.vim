@@ -84,12 +84,11 @@ function! tagsgen#tagsgen_setdir(bang)
       echom 'tagsgen: Not exists directory: ' . tags_dir
       return ''
     endif
+    call s:write(file_dir, tags_dir)
   endif
 
   cd `=tags_dir`
   let s:dirs[file_dir] = tags_dir
-
-  call s:write(file_dir, tags_dir)
 
   return tags_dir
 endfunction

@@ -25,7 +25,7 @@ if !isdirectory(g:tagsgen_data_dir)
 endif
 let s:data_file = g:tagsgen_data_dir . '/tagsgen'
 
-" ファイルごとの tags ディレクトリをキャッシュ
+" 開いているファイルのディレクトリごとの tags ディレクトリをキャッシュ
 function! s:load_dirs()
   let s:dirs = {'_': ''}
   if !filereadable(s:data_file)
@@ -72,10 +72,11 @@ function! s:write(key, val)
 endfunction
 
 function! tagsgen#tagsgen_setdir(bang)
+  let file_dir = expand('%:p:h')
   " bang でキャッシュした tags_dir を再指定
-  let tags_dir = a:bang ? '' : s:get_value(s:dirs, expand('%:p'))
+  let tags_dir = a:bang ? '' : s:get_value(s:dirs, file_dir)
   if tags_dir == ''
-    let tags_dir = input('tags dir?: ', expand('%:p:h'))
+    let tags_dir = input('tags dir?: ', file_dir)
     redraw
     if tags_dir == ''
       return ''
@@ -86,9 +87,9 @@ function! tagsgen#tagsgen_setdir(bang)
   endif
 
   cd `=tags_dir`
-  let s:dirs[expand('%:p')] = tags_dir
+  let s:dirs[file_dir] = tags_dir
 
-  call s:write(expand('%:p'), tags_dir)
+  call s:write(file_dir, tags_dir)
 
   return tags_dir
 endfunction

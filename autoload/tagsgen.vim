@@ -137,7 +137,7 @@ function! tagsgen#tagsgen(bang)
     silent! exe vimcmd cmd
     return
   endif
-  execute "redir! > " . expand(tags_dir . '/tags')
+  execute "redir! > " . tags_dir . '/tags'
   silent! execute vimcmd cmd
   redir END
 endfunction

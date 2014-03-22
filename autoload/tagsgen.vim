@@ -3,21 +3,46 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('g:tagsgen_option')
-  let g:tagsgen_option = {
-        \ '_' : '-R',
-        \ 'vim': '-R --languages=Vim',
-        \ 'python': '-R --languages=Python',
-        \ 'go': '{CURFILES} > tags'
-        \ }
-endif
+function! s:deepcopy_nooverwrite(fromdic, todic)
+  " return not dictionary
+  if type(a:fromdic) != 4
+    return
+  endif
+  for key in keys(a:fromdic)
+    if !has_key(a:todic, key)
+      let a:todic[key] = a:fromdic[key]
+      continue
+    endif
+    call s:deepcopy_nooverwrite(a:fromdic[key], a:todic[key])
+  endfor
+endfunction
 
-if !exists('g:tagsgen_tags_command')
-  let g:tagsgen_tags_command = {
-        \ '_': 'ctags',
-        \ 'go': 'gotags'
+function! s:set_tagsgen_config()
+  let default = {
+        \   '_': {
+        \     'cmd': 'ctags',
+        \     'option': '-R',
+        \     'redirect': 0,
+        \   },
+        \   'vim': {
+        \     'option': '-R --languages=Vim',
+        \   },
+        \   'python': {
+        \     'option': '-R --languages=Python',
+        \   },
+        \   'go': {
+        \     'cmd': 'gotags',
+        \     'option': '{CURFILES}',
+        \     'redirect': 1,
+        \   },
         \ }
-endif
+  if !exists('g:tagsgen_config')
+    let g:tagsgen_config = default
+    return
+  endif
+  call s:deepcopy_nooverwrite(default, g:tagsgen_config)
+endfunction
+call s:set_tagsgen_config()
 
 let g:tagsgen_data_dir = get(g:, "tagsgen_data_dir", expand('~/.tagsgen'))
 if !isdirectory(g:tagsgen_data_dir)
@@ -59,9 +84,18 @@ function! s:save_dirs()
 endfunction
 call s:save_dirs()
 
-
 function! s:get_value(dic, key)
   return has_key(a:dic, a:key) ? a:dic[a:key] : a:dic['_']
+endfunction
+
+function! s:get_config(dic, filetype, key)
+  if !has_key(a:dic, a:filetype)
+    return a:dic['_'][a:key]
+  endif
+  if !has_key(a:dic[a:filetype], a:key)
+    return a:dic['_'][a:key]
+  endif
+  return a:dic[a:filetype][a:key]
 endfunction
 
 function! s:write(key, val)
@@ -93,8 +127,8 @@ function! tagsgen#tagsgen_setdir(bang)
   return tags_dir
 endfunction
 
-function! s:get_tags_option()
-  let val = substitute(s:get_value(g:tagsgen_option, &filetype), '{CURFILE}', expand('%:t'), '')
+function! s:get_cmd_option()
+  let val = substitute(s:get_config(g:tagsgen_config, &filetype, 'option'), '{CURFILE}', expand('%:t'), '')
   if match(val, '{CURFILES}') == -1
     return val
   endif
@@ -109,19 +143,23 @@ function! tagsgen#tagsgen(bang)
     return
   endif
 
-  let tags_command = s:get_value(g:tagsgen_tags_command, &filetype)
-  if !executable(tags_command)
-    echom "tagsgen: Not available " . tags_command
+  let tags_cmd = s:get_config(g:tagsgen_config, &filetype, 'cmd')
+  if !executable(tags_cmd)
+    echom "tagsgen: Not available " . tags_cmd
     return
   endif
+  let cmd_option = s:get_cmd_option()
+  let cmd = tags_cmd . ' ' . cmd_option
 
-  let tags_option = s:get_tags_option()
-
-  let cmd = tags_command . ' ' . tags_option
-  " tags ファイル生成コマンドが標準出力へ出力される場合は > でファイルへ書き出
-  " す。> を使う場合は :! でコマンドを実行する。
-  let vimcmd = match(cmd, ">") == -1 && exists(':VimProcBang') == 2 ? 'VimProcBang' : ':!'
-  silent! exe vimcmd cmd
+  let vimcmd = exists(':VimProcBang') == 2 ? 'VimProcBang' : ':!'
+  let redirect = s:get_config(g:tagsgen_config, &filetype, 'redirect')
+  if redirect == 0
+    silent! exe vimcmd cmd
+    return
+  endif
+  execute "redir! > " . tags_dir . '/tags'
+  silent! execute vimcmd cmd
+  redir END
 endfunction
 
 let &cpo = s:save_cpo

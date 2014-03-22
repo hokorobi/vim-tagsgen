@@ -82,32 +82,18 @@ COMMANDS 					*tagsgen-commands*
 ------------------------------------------------------------------------------
 VARIABLES 					*tagsgen-variables*
 
-g:tagsgen_tags_command				*g:tagsgen_tags_command*
-		ファイルタイプに対応する tags ファイル生成コマンドを指定する。
+g:tagsgen_config				*g:tagsgen_config*
+		ファイルタイプに対応する tags ファイル生成コマンド、コマンドの
+		プション、そのコマンドが標準出力へ出力するか否かを指定する。
 
 		例:
 >
-		let g:tagsgen_tags_command = {
-		      \ '_': 'ctags',
-		      \ 'go': 'gotags'
-		      \ }
-<
-
-g:tagsgen_option				*g:tagsgen_option*
-		ファイルタイプに対応する tags ファイル生成コマンドのオプション
-		を指定する。
-		オプションに {CURFILES} を含めると、バッファで開いているファイ
-		ルのディレクトリから、同一拡張子のファイルを列挙します。
-		オプションに {CURFILE} を含めると、バッファで開いているファイ
-		ル名に置換します。
-
-		例:
->
-		let g:tagsgen_option = {
-		      \ '_' : '-R',
-		      \ 'vim': '-R --languages=Vim',
-		      \ 'python': '-R --languages=Python',
-		      \ 'go': '{CURFILES} > tags'
+		let g:tagsgen_config = {
+		      \   'go': {
+		      \     'cmd': 'gotags',
+		      \     'option': '{CURFILES}',
+		      \     'redirect': 1,
+		      \   },
 		      \ }
 <
 

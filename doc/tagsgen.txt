@@ -88,10 +88,12 @@ g:tagsgen_config				*g:tagsgen_config*
 
 		例:
 >
-		let g:tagsgen_config[go] = {
-		      \ 'cmd': 'gotags',
-		      \ 'option': '{CURFILES}',
-		      \ 'redirect': 1,
+		let g:tagsgen_config = {
+		      \   'go': {
+		      \     'cmd': 'gotags',
+		      \     'option': '{CURFILES}',
+		      \     'redirect': 1,
+		      \   },
 		      \ }
 <
 

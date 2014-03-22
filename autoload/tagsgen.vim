@@ -3,8 +3,8 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('g:tagsgen_config')
-  let g:tagsgen_config = {
+function! s:set_tagsgen_config()
+  let default = {
         \   '_': {
         \     'cmd': 'ctags',
         \     'option': '-R',
@@ -22,7 +22,23 @@ if !exists('g:tagsgen_config')
         \     'redirect': 1,
         \   },
         \ }
-endif
+  if !exists('g:tagsgen_config')
+    let g:tagsgen_config = default
+    return
+  endif
+  for ft in keys(default)
+    if !has_key(g:tagsgen_config, ft)
+      let g:tagsgen_config[ft] = default[ft]
+    else
+      for key in keys(default[ft])
+        if !has_key(g:tagsgen_config[ft], key)
+          let g:tagsgen_config[ft][key] = default[ft][key]
+        endif
+      endfor
+    endif
+  endfor
+endfunction
+call s:set_tagsgen_config()
 
 let g:tagsgen_data_dir = get(g:, "tagsgen_data_dir", expand('~/.tagsgen'))
 if !isdirectory(g:tagsgen_data_dir)

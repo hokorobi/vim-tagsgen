@@ -3,6 +3,10 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:Vital = vital#of('tagsgen')
+let s:Prelude = s:Vital.import('Prelude')
+unlet s:Vital
+
 function! s:deepcopy_nooverwrite(fromdic, todic)
   " return not dictionary
   if type(a:fromdic) != 4
@@ -110,7 +114,7 @@ function! tagsgen#tagsgen_setdir(bang)
   " bang でキャッシュした tags_dir を再指定
   let tags_dir = a:bang ? '' : s:get_value(s:dirs, file_dir)
   if tags_dir == ''
-    let tags_dir = input('tags dir?: ', file_dir)
+    let tags_dir = s:Prelude.path2project_directory(file_dir)
     redraw
     if tags_dir == ''
       return ''

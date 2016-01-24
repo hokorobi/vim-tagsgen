@@ -4,12 +4,6 @@ if exists('g:loaded_tagsgen')
 endif
 let g:loaded_tagsgen = 1
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 command! -bang -nargs=0 Tagsgen :call tagsgen#tagsgen(<bang>0)
 command! -bang -nargs=0 TagsgenSetDir :call tagsgen#tagsgen_setdir(<bang>0)
-
-let &cpo = s:save_cpo
-unlet s:save_cpo
 

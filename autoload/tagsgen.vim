@@ -1,8 +1,5 @@
 scriptencoding utf-8
 
-let s:save_cpo = &cpo
-set cpo&vim
-
 let s:Vital = vital#of('tagsgen')
 let s:Prelude = s:Vital.import('Prelude')
 unlet s:Vital
@@ -165,7 +162,4 @@ function! tagsgen#tagsgen(bang)
   silent! execute vimcmd cmd
   redir END
 endfunction
-
-let &cpo = s:save_cpo
-unlet s:save_cpo
 

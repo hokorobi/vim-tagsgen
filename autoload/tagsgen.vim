@@ -1,6 +1,6 @@
 scriptencoding utf-8
 
-let s:V = vital#of('tagsgen')
+let s:V = vital#tagsgen#new()
 let s:P = s:V.import('Prelude')
 unlet s:V
 

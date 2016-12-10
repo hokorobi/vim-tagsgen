@@ -163,3 +163,14 @@ function! tagsgen#tagsgen(bang) abort
   redir END
 endfunction
 
+function! tagsgen#clean() abort
+  " delete nonexistent folders
+  let tmp = []
+  for v in items(s:dirs)
+    if isdirectory(v[0]) && isdirectory(v[1])
+      call add(tmp, v[0] . "\t" . v[1])
+    endif
+  endfor
+  call writefile(tmp, s:data_file)
+endfunction
+

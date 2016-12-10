@@ -1,8 +1,8 @@
 scriptencoding utf-8
 
-let s:Vital = vital#of('tagsgen')
-let s:Prelude = s:Vital.import('Prelude')
-unlet s:Vital
+let s:V = vital#of('tagsgen')
+let s:P = s:V.import('Prelude')
+unlet s:V
 
 function! s:deepcopy_nooverwrite(fromdic, todic) abort
   " return not dictionary
@@ -73,9 +73,8 @@ call s:load_dirs()
 " s:dirs は辞書型なので s:load_dirs() の後には、重複などがなくなるのでそれを
 " 書き込み
 function! s:save_dirs() abort
-  let list = items(s:dirs)
   let vs = []
-  for v in list
+  for v in items(s:dirs)
     if v[1] ==# ''
       continue
     endif
@@ -111,7 +110,7 @@ function! tagsgen#tagsgen_setdir(bang) abort
   " bang でキャッシュした tags_dir を再指定
   let tags_dir = a:bang ? '' : s:get_value(s:dirs, file_dir)
   if tags_dir ==# ''
-    let tags_dir = s:Prelude.path2project_directory(file_dir)
+    let tags_dir = s:P.path2project_directory(file_dir)
     redraw
     if tags_dir ==# ''
       return ''

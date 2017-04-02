@@ -26,7 +26,6 @@ function! s:set_tagsgen_config() abort
         \   '_': {
         \     'cmd': 'ctags',
         \     'option': '-R',
-        \     'redirect': 0,
         \   },
         \   'vim': {
         \     'option': '-R --languages=Vim',
@@ -47,49 +46,6 @@ function! s:set_tagsgen_config() abort
 endfunction
 call s:set_tagsgen_config()
 
-let g:tagsgen_data_dir = get(g:, 'tagsgen_data_dir', expand('~/.tagsgen'))
-if !isdirectory(g:tagsgen_data_dir)
-  call mkdir(g:tagsgen_data_dir)
-endif
-let s:data_file = g:tagsgen_data_dir . '/tagsgen'
-
-" 開いているファイルのディレクトリごとの tags ディレクトリをキャッシュ
-function! s:load_dirs() abort
-  let s:dirs = {'_': ''}
-  if !filereadable(s:data_file)
-    return
-  endif
-
-  for v in readfile(s:data_file)
-    " TODO 無駄な改行が入らなくなったらいらなくなるはず
-    if v ==# ''
-      continue
-    endif
-    let vl = split(v, "\t")
-    let s:dirs[vl[0]] = vl[1]
-  endfor
-endfunction
-call s:load_dirs()
-
-" キャッシュファイルの重複などを削除
-" s:dirs は辞書型なので s:load_dirs() の後には、重複などがなくなるのでそれを
-" 書き込み
-function! s:save_dirs() abort
-  let vs = []
-  for v in items(s:dirs)
-    if v[1] ==# ''
-      continue
-    endif
-    call add(vs, v[0] . "\t" . v[1])
-  endfor
-  call writefile(vs, s:data_file)
-endfunction
-call s:save_dirs()
-
-function! s:get_value(dic, key) abort
-  return has_key(a:dic, a:key) ? a:dic[a:key] : a:dic['_']
-endfunction
-
 function! s:get_config(dic, filetype, key) abort
   if !has_key(a:dic, a:filetype)
     return a:dic['_'][a:key]
@@ -100,49 +56,10 @@ function! s:get_config(dic, filetype, key) abort
   return a:dic[a:filetype][a:key]
 endfunction
 
-function! s:write(key, val) abort
-  " FIXME 最初の出力時に改行が入る
-  execute 'redir >> ' . s:data_file
-  silent echo a:key . "\t" . a:val
-  redir END
-endfunction
-
-function! tagsgen#tagsgen_setdir(bang) abort
-  let file_dir = expand('%:p:h')
-  " bang でキャッシュした tags_dir を再指定
-  let tags_dir = a:bang ? '' : s:get_value(s:dirs, file_dir)
-  if tags_dir ==# ''
-    let tags_dir = s:P.path2project_directory(file_dir)
-    redraw
-    if tags_dir ==# ''
-      return ''
-    elseif !isdirectory(tags_dir)
-      echomsg 'tagsgen: Not exists directory: ' . tags_dir
-      return ''
-    endif
-    call s:write(file_dir, tags_dir)
-  endif
-
-  cd `=tags_dir`
-  let s:dirs[file_dir] = tags_dir
-
-  return tags_dir
-endfunction
-
-function! s:get_cmd_option() abort
-  let val = substitute(s:get_config(g:tagsgen_config, &filetype, 'option'), '{CURFILE}', expand('%:t'), '')
-  if match(val, '{CURFILES}') == -1
-    return val
-  endif
-  let curfiles = glob('*.' . expand('%:e'))
-  let files = substitute(curfiles, '\n', ' ', 'g')
-  return substitute(val, '{CURFILES}',files , '')
-endfunction
-
 function! tagsgen#tagsgen(bang) abort
-  let tags_dir = tagsgen#tagsgen_setdir(a:bang)
-  if tags_dir ==# ''
-    return
+  let tags_dir = s:P.path2project_directory(expand('%:p:h'))
+  if tags_dir !=# ''
+    execute 'cd '.tags_dir
   endif
 
   let tags_cmd = s:get_config(g:tagsgen_config, &filetype, 'cmd')
@@ -150,30 +67,13 @@ function! tagsgen#tagsgen(bang) abort
     echomsg 'tagsgen: Not available ' . tags_cmd
     return
   endif
-  let cmd_option = s:get_cmd_option()
+  let cmd_option = s:get_config(g:tagsgen_config, &filetype, 'option')
   let cmd = tags_cmd . ' ' . cmd_option
 
   let vimcmd = exists(':VimProcBang') == 2 ? 'VimProcBang' : ':!'
-  let redirect = s:get_config(g:tagsgen_config, &filetype, 'redirect')
-  if redirect == 0
-    silent! execute vimcmd cmd
-    return
-  endif
-  execute 'redir! > ' . tags_dir . '/tags'
   silent! execute vimcmd cmd
-  redir END
-endfunction
-
-function! tagsgen#clean() abort
-  " delete nonexistent folders
-  let tmp = []
-  for v in items(s:dirs)
-    if isdirectory(v[0]) && isdirectory(v[1])
-      call add(tmp, v[0] . "\t" . v[1])
-    endif
-  endfor
-  call writefile(tmp, s:data_file)
 endfunction
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+

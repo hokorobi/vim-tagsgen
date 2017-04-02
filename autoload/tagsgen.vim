@@ -3,9 +3,7 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:V = vital#tagsgen#new()
-let s:P = s:V.import('Prelude')
-unlet s:V
+let s:P = vital#tagsgen#import('Prelude')
 
 function! s:deepcopy_nooverwrite(fromdic, todic) abort
   " return not dictionary

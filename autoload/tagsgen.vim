@@ -3,7 +3,9 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:P = vital#tagsgen#import('Prelude')
+let s:Prelude = vital#tagsgen#import('Prelude')
+let s:Process = vital#tagsgen#import('System.Process')
+call s:Process.register('System.Process.Job')
 
 function! s:deepcopy_nooverwrite(fromdic, todic) abort
   " return not dictionary
@@ -23,17 +25,17 @@ function! s:set_tagsgen_config() abort
   let default = {
         \   '_': {
         \     'cmd': 'ctags',
-        \     'option': '-R',
+        \     'option': ['-R'],
         \   },
         \   'vim': {
-        \     'option': '-R --languages=Vim',
+        \     'option': ['-R', '--languages=Vim'],
         \   },
         \   'python': {
-        \     'option': '-R --languages=Python',
+        \     'option': ['-R', '--languages=Python'],
         \   },
         \   'go': {
         \     'cmd': 'gotags',
-        \     'option': '-R -f tags .\\',
+        \     'option': ['-R', '-f', 'tags', '.'],
         \   },
         \ }
   if !exists('g:tagsgen_config')
@@ -55,7 +57,7 @@ function! s:get_config(dic, filetype, key) abort
 endfunction
 
 function! tagsgen#tagsgen(bang) abort
-  let tags_dir = s:P.path2project_directory(expand('%:p:h'))
+  let tags_dir = s:Prelude.path2project_directory(expand('%:p:h'))
   if tags_dir !=# ''
     execute 'cd '.tags_dir
   endif
@@ -66,10 +68,11 @@ function! tagsgen#tagsgen(bang) abort
     return
   endif
   let cmd_option = s:get_config(g:tagsgen_config, &filetype, 'option')
-  let cmd = tags_cmd . ' ' . cmd_option
-
-  let vimcmd = exists(':VimProcBang') == 2 ? 'VimProcBang' : ':!'
-  silent! execute vimcmd cmd
+  let cmd = [tags_cmd] + cmd_option
+  let result = s:Process.execute(cmd, {'clients': ['System.Process.Job']})
+  if result['status']
+    echo result['output']
+  endif
 endfunction
 
 let &cpo = s:save_cpo

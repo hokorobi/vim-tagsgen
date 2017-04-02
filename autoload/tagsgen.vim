@@ -36,8 +36,7 @@ function! s:set_tagsgen_config() abort
         \   },
         \   'go': {
         \     'cmd': 'gotags',
-        \     'option': '{CURFILES}',
-        \     'redirect': 1,
+        \     'option': '-R -f tags .\\',
         \   },
         \ }
   if !exists('g:tagsgen_config')

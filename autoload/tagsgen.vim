@@ -117,7 +117,7 @@ function! tagsgen#tagsgen_setdir(bang) abort
     if tags_dir ==# ''
       return ''
     elseif !isdirectory(tags_dir)
-      echom 'tagsgen: Not exists directory: ' . tags_dir
+      echomsg 'tagsgen: Not exists directory: ' . tags_dir
       return ''
     endif
     call s:write(file_dir, tags_dir)
@@ -147,7 +147,7 @@ function! tagsgen#tagsgen(bang) abort
 
   let tags_cmd = s:get_config(g:tagsgen_config, &filetype, 'cmd')
   if !executable(tags_cmd)
-    echom 'tagsgen: Not available ' . tags_cmd
+    echomsg 'tagsgen: Not available ' . tags_cmd
     return
   endif
   let cmd_option = s:get_cmd_option()
@@ -156,7 +156,7 @@ function! tagsgen#tagsgen(bang) abort
   let vimcmd = exists(':VimProcBang') == 2 ? 'VimProcBang' : ':!'
   let redirect = s:get_config(g:tagsgen_config, &filetype, 'redirect')
   if redirect == 0
-    silent! exe vimcmd cmd
+    silent! execute vimcmd cmd
     return
   endif
   execute 'redir! > ' . tags_dir . '/tags'

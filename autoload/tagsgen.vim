@@ -3,9 +3,8 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:V = vital#tagsgen#new()
 let s:Prelude = vital#tagsgen#import('Prelude')
-let s:Process = vital#tagsgen#import('System.Process')
-call s:Process.register('System.Process.Job')
 
 function! s:deepcopy_nooverwrite(fromdic, todic) abort
   " return not dictionary
@@ -69,10 +68,7 @@ function! tagsgen#tagsgen(bang) abort
   endif
   let cmd_option = s:get_config(g:tagsgen_config, &filetype, 'option')
   let cmd = [tags_cmd] + cmd_option
-  let result = s:Process.execute(cmd, {'clients': ['System.Process.Job']})
-  if result['status']
-    echo result['output']
-  endif
+  echo system_job#system(cmd)
 endfunction
 
 let &cpo = s:save_cpo
